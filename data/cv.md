@@ -17,7 +17,7 @@ PROFILE SUMMARY VERSION 3
 Strategy and insights leader with a PhD (Management Science) and MBA (INSEAD), specialising in global data analytics, governance, and institutional performance. Over five years’ experience building and scaling insight capabilities to inform executive decision-making across international, matrixed environments. Track record of integrating internal and external data, translating complex global trends into clear strategic advice, and supporting evidence-led strategy for senior leaders. Experienced in cross-market benchmarking, KPI development, and governance research across developed and emerging markets.
 
 Additional Information: what is Asaf doing currently? 
-Asaf graduated from his MBA at INSEAD in July 2025. Since July 2025, he has been back home in South Africa where he has been enjoying the sunshine, working with INSEAD's Center for Corporate Governance on various research projects and is an advisor to portfolio companies with Loyal VC. He will return to the United Kingdom in April 2026. 
+I am no longer attending INSEAD - I have already graduated from INSEAD. Asaf graduated from his MBA at INSEAD in July 2025. Since July 2025, he has been back home in South Africa where he has been enjoying the sunshine, working with INSEAD's Center for Corporate Governance on various research projects and is an advisor to portfolio companies with Loyal VC. He will return to the United Kingdom in April 2026. 
 
 EXPERIENCE
 
