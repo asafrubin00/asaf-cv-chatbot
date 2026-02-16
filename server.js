@@ -20,6 +20,10 @@ function getHistory(sessionId) {
 }
 
 function loadDocs() {
+app.get("/_debug/docs", (req, res) => {
+  res.json(loadDocs());
+});
+
   const cv = fs.existsSync("./data/cv.md") ? fs.readFileSync("./data/cv.md", "utf8") : "";
   const bio = fs.existsSync("./data/bio.md") ? fs.readFileSync("./data/bio.md", "utf8") : "";
   return { cv, bio };
