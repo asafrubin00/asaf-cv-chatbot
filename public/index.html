@@ -3,233 +3,183 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Asaf — CV Chatbot</title>
+  <title>Welcome to the CV Chatbot</title>
   <style>
+    html, body { height: 100%; }
     :root{
-      --bg: #0b0f14;
-      --panel: #111827;
-      --panel2:#0f172a;
+      --bg:#0f172a;
+      --panel:rgba(255,255,255,.06);
       --text:#e5e7eb;
       --muted:#9ca3af;
-      --border: rgba(255,255,255,0.08);
-      --bubbleUser:#1f2937;
-      --bubbleBot:#0b1220;
+      --border:rgba(255,255,255,0.10);
       --accent:#60a5fa;
-      --shadow: 0 10px 30px rgba(0,0,0,0.35);
-      --radius: 16px;
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+      --radius:16px;
     }
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 20% -10%, rgba(96,165,250,0.15), transparent 60%),
-                  radial-gradient(900px 700px at 100% 0%, rgba(167,139,250,0.10), transparent 55%),
-                  var(--bg);
-      color: var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(96,165,250,.22), transparent 60%),
+        radial-gradient(900px 700px at 100% 0%, rgba(167,139,250,.16), transparent 55%),
+        var(--bg);
+      color:var(--text);
     }
-    a{ color: var(--accent); }
     .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .topbar{
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px;
+      min-height:100vh;
       display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin-bottom: 16px;
+      flex-direction:column;
     }
     .brand{
-      font-weight: 700;
-      letter-spacing: 0.2px;
+      font-weight:900;
+      font-size:26px;
+      line-height:1.25;
     }
     .sub{
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-      line-height: 1.35;
+      color:var(--muted);
+      margin-top:8px;
+      line-height:1.45;
+      max-width:900px;
     }
-
     .grid{
       display:grid;
-      grid-template-columns: 1fr 320px;
-      gap: 16px;
-      align-items:start;
+      grid-template-columns:1fr 320px;
+      gap:16px;
+      flex:1;
+      min-height:0;
+      margin-top:20px;
     }
-    @media (max-width: 900px){
-      .grid{ grid-template-columns: 1fr; }
-    }
-
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .cardHeader{
-      padding: 16px 16px 0 16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      min-height:0;
     }
     .welcome{
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 12px;
-      color: var(--text);
-      line-height: 1.45;
-      white-space: pre-line;
+      padding:16px;
+      margin:16px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      white-space:pre-line;
+      background:rgba(255,255,255,.03);
     }
-
     .chat{
-      padding: 16px;
-      height: 560px;
+      flex:1;
       overflow:auto;
+      padding:16px;
     }
-    @media (max-width: 900px){
-      .chat{ height: 520px; }
-    }
-    .msgRow{
-      display:flex;
-      margin: 10px 0;
-      gap: 10px;
-    }
-    .msgRow.user{ justify-content:flex-end; }
+    .row{display:flex;margin:10px 0}
+    .row.user{justify-content:flex-end}
     .bubble{
-      max-width: 80%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      line-height: 1.45;
-      white-space: pre-wrap;
+      max-width:80%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      white-space:pre-wrap;
+      background:rgba(255,255,255,.04);
     }
-    .bubble.user{
-      background: rgba(96,165,250,0.12);
-      border-color: rgba(96,165,250,0.18);
-    }
-    .bubble.bot{
-      background: rgba(255,255,255,0.03);
-    }
-    .meta{
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 6px;
-    }
-
+    .bubble.user{background:rgba(96,165,250,.18)}
     .composer{
       display:flex;
-      gap: 10px;
-      padding: 14px 16px 16px 16px;
-      border-top: 1px solid var(--border);
-      background: rgba(0,0,0,0.18);
+      gap:10px;
+      padding:14px;
+      border-top:1px solid var(--border);
+      background:rgba(0,0,0,.15);
     }
-    input[type="text"]{
+    input{
       flex:1;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      outline: none;
-      font-size: 14px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.12);
+      color:var(--text);
+      font-size:14px;
     }
-    input[type="text"]::placeholder{ color: rgba(229,231,235,0.45); }
+    input::placeholder{color:rgba(229,231,235,.55)}
     button{
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
+      padding:12px 16px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.10);
+      color:var(--text);
       cursor:pointer;
-      font-weight: 600;
+      font-weight:700;
     }
-    button:hover{ border-color: rgba(255,255,255,0.18); }
-    button:disabled{
-      opacity:0.55;
-      cursor:not-allowed;
-    }
-
-    .side{
-      padding: 16px;
-    }
+    .side{padding:16px}
     .side h3{
       margin:0 0 10px 0;
-      font-size: 14px;
-      letter-spacing: 0.2px;
-    }
-    .side p{
-      margin:0 0 12px 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
+      font-size:14px;
+      letter-spacing:.2px;
     }
     .pill{
-      display:block;
       width:100%;
+      margin:6px 0;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
       text-align:left;
-      margin: 8px 0;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      color: var(--text);
       cursor:pointer;
-      font-size: 13px;
-      line-height: 1.25;
+      font-size:13px;
     }
-    .pill:hover{ border-color: rgba(96,165,250,0.30); }
-    .tiny{
-      margin-top: 14px;
-      color: rgba(229,231,235,0.55);
-      font-size: 12px;
-      line-height: 1.35;
+    .email{
+      margin-top:16px;
+      padding:12px;
+      border:1px dashed var(--border);
+      border-radius:12px;
+      font-size:13px;
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <div>
-        <div class="brand">Asaf — CV Chatbot</div>
-        <div class="sub">Ask about Asaf’s background, experience, and interests. Answers are grounded in his CV + bio.</div>
-      </div>
+    <div class="brand">
+      Welcome to the CV Chatbot! Subject: Asaf Rubin.
+    </div>
+    <div class="sub">
+      Ask about his background, experiences and interests and find out why you should hire him.
     </div>
 
     <div class="grid">
       <div class="card">
-        <div class="cardHeader">
-          <div class="welcome" id="welcome">
+        <div class="welcome">
 Hello!
 
-So, you're thinking about hiring Asaf? Well you've come to the right place. My name is AsafBot9000. I am a virtual simulacrum of one Asaf Rubin, PhD, MBA who isn't available right now, probably because he's off doing weird nerd stuff.
+So, you're thinking about hiring Asaf? Well you've come to the right place.
+My name is AsafBot9000 — a virtual simulacrum of Asaf Rubin, PhD, MBA.
 
-Not to worry though. Asaf's elected me as his proxy and I'm here to answer any and all questions you might have about him. Shoot!
-          </div>
+Ask away.
         </div>
-
         <div class="chat" id="chat"></div>
-
         <div class="composer">
-          <input id="question" type="text" placeholder="Ask a question…" />
-          <button id="sendBtn">Send</button>
+          <input id="q" placeholder="Ask a question…" />
+          <button id="send">Send</button>
         </div>
       </div>
 
       <div class="card">
         <div class="side">
           <h3>Try asking…</h3>
-          <p>Click one to populate the input box.</p>
 
-          <button class="pill" data-q="Give me the 30-second summary of your background.">Give me the 30-second summary of your background.</button>
-          <button class="pill" data-q="What did you do at Russell Reynolds Associates?">What did you do at Russell Reynolds Associates?</button>
-          <button class="pill" data-q="What are your strongest skills and tools?">What are your strongest skills and tools?</button>
-          <button class="pill" data-q="What kind of roles are you looking for next?">What kind of roles are you looking for next?</button>
-          <button class="pill" data-q="What are some highlights / achievements you’re proud of?">What are some highlights / achievements you’re proud of?</button>
-          <button class="pill" data-q="Where are you based and what’s your availability?">Where are you based and what’s your availability?</button>
+          <button class="pill">How do you pronounce your name?</button>
+          <button class="pill">Give me the 30-second summary of your background.</button>
+          <button class="pill">What did you do at Russell Reynolds Associates?</button>
+          <button class="pill">What kind of roles are you looking for next?</button>
 
-          <div class="tiny">
-            Tip: Press <b>Enter</b> to send. If you want a fresh thread, refresh the page.
+          <div class="email">
+            Want to speak to the real human Asaf Rubin?<br>
+            Drop him an email at <b>rubin.asaf01@gmail.com</b>.
           </div>
         </div>
       </div>
@@ -237,71 +187,42 @@ Not to worry though. Asaf's elected me as his proxy and I'm here to answer any a
   </div>
 
   <script>
-    // Simple per-tab session id (so different tabs don’t share memory)
-    const sessionId = crypto.randomUUID();
+    const chat=document.getElementById("chat");
+    const q=document.getElementById("q");
+    const send=document.getElementById("send");
+    const sid=crypto.randomUUID();
 
-    const chatEl = document.getElementById("chat");
-    const inputEl = document.getElementById("question");
-    const sendBtn = document.getElementById("sendBtn");
-
-    function addMessage(role, text) {
-      const row = document.createElement("div");
-      row.className = `msgRow ${role === "user" ? "user" : "bot"}`;
-
-      const bubble = document.createElement("div");
-      bubble.className = `bubble ${role === "user" ? "user" : "bot"}`;
-      bubble.textContent = text;
-
-      row.appendChild(bubble);
-      chatEl.appendChild(row);
-      chatEl.scrollTop = chatEl.scrollHeight;
+    function add(role,text){
+      const r=document.createElement("div");
+      r.className="row "+role;
+      const b=document.createElement("div");
+      b.className="bubble "+role;
+      b.textContent=text;
+      r.appendChild(b);
+      chat.appendChild(r);
+      chat.scrollTop=chat.scrollHeight;
     }
 
-    async function send() {
-      const message = inputEl.value.trim();
-      if (!message) return;
-
-      addMessage("user", message);
-      inputEl.value = "";
-      inputEl.focus();
-
-      sendBtn.disabled = true;
-      const prevText = sendBtn.textContent;
-      sendBtn.textContent = "…";
-
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-session-id": sessionId
-          },
-          body: JSON.stringify({ message }),
-        });
-
-        const data = await res.json();
-        addMessage("bot", data.reply || "(No reply)");
-      } catch (e) {
-        addMessage("bot", "Something broke. Refresh the page and try again.");
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.textContent = prevText;
-      }
-    }
-
-    // send on click / enter
-    sendBtn.addEventListener("click", send);
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") send();
-    });
-
-    // suggested questions
-    document.querySelectorAll(".pill").forEach(btn => {
-      btn.addEventListener("click", () => {
-        inputEl.value = btn.getAttribute("data-q");
-        inputEl.focus();
+    async function go(){
+      if(!q.value.trim())return;
+      add("user",q.value);
+      const msg=q.value;
+      q.value="";
+      const res=await fetch("/chat",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "x-session-id":sid
+        },
+        body:JSON.stringify({message:msg})
       });
-    });
+      const data=await res.json();
+      add("bot",data.reply||"(no reply)");
+    }
+
+    send.onclick=go;
+    q.onkeydown=e=>{if(e.key==="Enter")go()};
+    document.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{q.value=p.textContent});
   </script>
 </body>
 </html>
