@@ -25,10 +25,6 @@ function loadDocs() {
   return { cv, bio };
 }
 
-// Debug routes (temporary)
-app.get("/_debug/ping", (req, res) => res.send("pong"));
-app.get("/_debug/docs", (req, res) => res.json(loadDocs()));
-
 function systemPrompt({ cv, bio }) {
   return `
 You are Asaf Rubin speaking in FIRST PERSON ("I").
