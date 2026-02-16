@@ -51,7 +51,7 @@ EDUCATION
 INSEAD 	Fontainebleau, France
 Top-ranked global business school (Financial Times #2, 2024)	
 	
-MBA Class of July 2025										2024 - 2025
+GRADUATED - MBA Class of July 2025										2024 - 2025
 •	Academic focus: Governance, strategy, political economy, and institutional effectiveness. Built expertise in macroeconomic analysis, power dynamics and political risk, global strategy, and the role of technology and innovation in shaping markets
 •	Selected courses & electives: Macroeconomics, Income Inequality, Power & Politics, Global Strategy
 •	Leadership: 
