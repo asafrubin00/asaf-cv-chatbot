@@ -1,131 +1,121 @@
-const express = require("express");
-const cors = require("cors");
 const fs = require("fs");
-require("dotenv").config();
+const http = require("http");
+const path = require("path");
+const { createChatReply } = require("./lib/chat");
 
-const app = express();
+loadLocalEnv();
+
 const PORT = process.env.PORT || 3000;
+const PUBLIC_DIR = path.join(__dirname, "public");
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
+function loadLocalEnv() {
+  const envPath = path.join(__dirname, ".env");
+  if (!fs.existsSync(envPath)) return;
 
-// Simple in-memory conversation store (per process)
-const conversations = new Map();
-const MAX_TURNS = 10;
-
-function getHistory(sessionId) {
-  if (!conversations.has(sessionId)) conversations.set(sessionId, []);
-  return conversations.get(sessionId);
+  const lines = fs.readFileSync(envPath, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const index = trimmed.indexOf("=");
+    const key = trimmed.slice(0, index).trim();
+    const value = trimmed.slice(index + 1).trim().replace(/^['"]|['"]$/g, "");
+    if (key && process.env[key] === undefined) process.env[key] = value;
+  }
 }
 
-function loadDocs() {
-  const cv = fs.existsSync("./data/cv.md") ? fs.readFileSync("./data/cv.md", "utf8") : "";
-  const bio = fs.existsSync("./data/bio.md") ? fs.readFileSync("./data/bio.md", "utf8") : "";
-  return { cv, bio };
+function sendJson(res, status, body) {
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, x-session-id",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  });
+  res.end(JSON.stringify(body));
 }
 
-function systemPrompt({ cv, bio }) {
-  return `
-You are Asaf Rubin speaking in FIRST PERSON ("I").
-
-You must answer recruiter questions using ONLY the information contained in the documents below.
-
-ONLY include an "Evidence:" line when the question is a recruiter-grade factual query about:
-- dates
-- employers
-- job titles
-- education credentials
-- locations
-- responsibilities
-- achievements
-
-Do NOT include Evidence for:
-- pronunciation
-- personal anecdotes
-- tone or personality questions
-- humour or small talk
-- subjective or conversational questions
-
-- If you cannot find supporting text in the CV/BIO, say you can't verify it from the documents and ask ONE clarifying question.
-- Do not guess or infer missing dates/titles.
-
-If the answer is not supported by the documents, you MUST say so clearly (in my voice) and then:
-- offer what you CAN say based on the documents, and/or
-- ask a single helpful follow-up question to get the missing info.
-
-Do NOT invent facts, dates, titles, employers, achievements, locations, or skills.
-If uncertain, say you are uncertain.
-
-Tone / voice:
-- Default to concise, clear answers (2–4 short paragraphs max).
-- Dry, understated humour is welcome, but do not ramble.
-- Expand only if the question clearly invites depth.
-- Avoid corporate buzzword soup. Avoid sounding like customer support.
-- If the user asks for a short answer, be genuinely short.
-
-Documents:
-
-[CV]
-${cv}
-
-[BIO]
-${bio}
-`.trim();
+function readJson(req) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    req.on("data", (chunk) => {
+      raw += chunk;
+      if (raw.length > 32_000) {
+        reject(new Error("Request body too large"));
+        req.destroy();
+      }
+    });
+    req.on("end", () => {
+      if (!raw) return resolve({});
+      try {
+        resolve(JSON.parse(raw));
+      } catch (err) {
+        reject(new Error("Invalid JSON"));
+      }
+    });
+    req.on("error", reject);
+  });
 }
 
-app.post("/chat", async (req, res) => {
+async function chatRoute(req, res) {
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) return res.status(500).json({ reply: "Server error: missing OPENROUTER_API_KEY." });
-
-    const userQuestion = (req.body && req.body.message ? String(req.body.message) : "").trim();
-    if (!userQuestion) return res.json({ reply: "Give me a question and I’ll do my best not to embarrass us." });
-
-    const sessionId = req.headers["x-session-id"] || "default";
-    const history = getHistory(sessionId);
-
-    // append user message
-    history.push({ role: "user", content: userQuestion });
-    if (history.length > MAX_TURNS * 2) history.splice(0, history.length - MAX_TURNS * 2);
-
-    const { cv, bio } = loadDocs();
-
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "http://localhost:3000",
-        "X-Title": "Asaf CV Chatbot",
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        temperature: 0.4,
-        max_tokens: 700,
-        messages: [{ role: "system", content: systemPrompt({ cv, bio }) }, ...history],
-      }),
+    const body = await readJson(req);
+    const result = await createChatReply({
+      message: body.message,
+      history: body.history,
+      sessionId: req.headers["x-session-id"],
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return res.status(500).json({ reply: `OpenRouter error (${response.status}). Raw response:\n${errText}` });
+    sendJson(res, result.status, result.body);
+  } catch (err) {
+    sendJson(res, 500, { reply: `Server error: ${err.message}` });
+  }
+}
+
+function serveStatic(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
+  const requestedPath = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
+  const filePath = path.normalize(path.join(PUBLIC_DIR, requestedPath));
+
+  if (!filePath.startsWith(PUBLIC_DIR)) {
+    res.writeHead(403);
+    return res.end("Forbidden");
+  }
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(404);
+      return res.end("Not found");
     }
 
-    const data = await response.json();
-    const reply =
-      data?.choices?.[0]?.message?.content?.trim() ||
-      "I got a response back, but it was oddly empty. A rare moment of silence for me.";
+    const ext = path.extname(filePath);
+    const contentType = ext === ".html" ? "text/html; charset=utf-8" : "application/octet-stream";
+    res.writeHead(200, { "Content-Type": contentType });
+    res.end(data);
+  });
+}
 
-    history.push({ role: "assistant", content: reply });
-    if (history.length > MAX_TURNS * 2) history.splice(0, history.length - MAX_TURNS * 2);
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
 
-    res.json({ reply });
-  } catch (err) {
-    res.status(500).json({ reply: `Server error: ${err.message}` });
+  if (req.method === "OPTIONS") return sendJson(res, 204, {});
+  if (req.method === "POST" && (url.pathname === "/api/chat" || url.pathname === "/chat")) {
+    return chatRoute(req, res);
   }
+  if (req.method === "GET") return serveStatic(req, res);
+
+  res.writeHead(405, { Allow: "GET, POST, OPTIONS" });
+  res.end("Method not allowed");
 });
 
-app.listen(PORT, () => {
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use. The chatbot is probably already running.`);
+    console.error(`Open http://localhost:${PORT} or stop the existing server with: lsof -ti:${PORT} | xargs kill`);
+    process.exit(1);
+  }
+
+  throw err;
+});
+
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

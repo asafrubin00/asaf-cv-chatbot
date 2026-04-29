@@ -1,47 +1,51 @@
 # CV Chatbot
 
-**Ask me anything. Powered by my CV and professional history.**
+Ask me anything. Powered by Asaf Rubin's CV, professional history, and biography.
 
-💬 [Chat now →](https://asaf-cv-chatbot.onrender.com)
-
-The fastest way to get to know me professionally is to ask. This chatbot is trained on my CV and biography and answers recruiter-style questions about my background, experience, skills, and interests, in a deliberately human voice.
-
----
+This is a public chatbot that answers recruiter-style questions about Asaf Rubin's background, experience, skills, research, and interests in a deliberately human voice.
 
 ## What It Does
 
-- Answers questions about my education, career history, and projects
-- Grounded strictly on source files (`cv.md` and `bio.md`) - won't fabricate
-- Designed for recruiters, collaborators, or anyone doing due diligence
+- Answers questions about education, career history, projects, research, and professional interests
+- Grounds answers on Markdown/text files in `data/`
+- Selects the most relevant sections of the training document per question to keep responses fast
+- Refuses to invent unsupported facts
+- Runs locally with Node's built-in HTTP server and deploys cleanly to Vercel serverless functions
 
-**Try asking:**
-- *"What is Asaf's background in corporate governance?"*
-- *"Tell me about his PhD research"*
-- *"What has he built recently?"*
+## Tech
 
----
+- Static HTML/CSS/JS frontend in `public/index.html`
+- Shared chat logic in `lib/chat.js`
+- Vercel API function in `api/chat.js`
+- Local HTTP server in `server.js`
+- OpenAI Responses API, defaulting to `gpt-5.4-mini`
 
-## Tech Stack
-
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-
-Node.js + Express, hosted on Render. LLM via OpenRouter.
-
----
-
-## Running Locally
+## Local Run
 
 ```bash
 git clone https://github.com/asafrubin00/asaf-cv-chatbot.git
 cd asaf-cv-chatbot
 npm install
-node server.js
+cp .env.example .env
+npm run dev
 ```
 
----
+Set `OPENAI_API_KEY` in `.env` before chatting locally.
 
-## Status
+## Vercel Deploy
 
-✅ Functional: live on Render  
-🔜 Full rebuild planned: improved UI, richer knowledge base, better conversation quality
+1. Import the repository into Vercel.
+2. Add `OPENAI_API_KEY` as a production environment variable.
+3. Optionally set `OPENAI_MODEL`, `OPENAI_REASONING_EFFORT`, `OPENAI_TEXT_VERBOSITY`, and `OPENAI_MAX_OUTPUT_TOKENS`.
+4. Deploy.
+
+## Updating Asaf's Information
+
+Replace, edit, or add Markdown/text files in `data/`, for example:
+
+- `data/bio.md`
+- `data/cv.md`
+- `data/cv-product.md`
+- `data/cv-strategy.md`
+
+If there are multiple CV versions, keep the filenames and headings clear so the chatbot can distinguish positioning language from shared facts.

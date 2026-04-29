@@ -3,226 +3,444 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to the CV Chatbot</title>
+  <title>Asaf Rubin CV Chatbot</title>
   <style>
-    html, body { height: 100%; }
+    html, body { height: 100%; overflow:hidden; }
     :root{
-      --bg:#0f172a;
-      --panel:rgba(255,255,255,.06);
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --border:rgba(255,255,255,0.10);
-      --accent:#60a5fa;
-      --shadow:0 10px 30px rgba(0,0,0,0.35);
-      --radius:16px;
+      --bg:#202020;
+      --sidebar-bg:#000000;
+      --text:#f4f4f4;
+      --muted:#a8a8a8;
+      --panel:#303030;
+      --panel-light:#5a5a5a;
+      --line:#2b2b2b;
+      --radius:18px;
+      --left-rail:200px;
+      --right-rail:280px;
+      --content:1040px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      background:
-        radial-gradient(1200px 800px at 20% -10%, rgba(96,165,250,.22), transparent 60%),
-        radial-gradient(900px 700px at 100% 0%, rgba(167,139,250,.16), transparent 55%),
-        var(--bg);
+      background:var(--bg);
       color:var(--text);
+      overflow-x:hidden;
     }
-    .wrap{
-      max-width:1100px;
+    a{color:var(--text);text-decoration:underline;text-underline-offset:2px}
+    .shell{
+      height:100vh;
+      min-height:0;
+      display:grid;
+      grid-template-columns:var(--left-rail) minmax(0,1fr) 0;
+    }
+    body.conversation-started .shell{
+      grid-template-columns:var(--left-rail) minmax(0,1fr) var(--right-rail);
+    }
+    .links,.suggestions{
+      height:100vh;
+      min-height:0;
+      background:var(--sidebar-bg);
+      padding:32px 28px 28px;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    .links{border-right:1px solid var(--line)}
+    .suggestions{
+      border-left:1px solid var(--line);
+      display:none;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .16s ease;
+    }
+    body.conversation-started .suggestions{
+      display:flex;
+      opacity:1;
+      pointer-events:auto;
+    }
+    .links h2{
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:22px;
+      line-height:1;
+      margin:0 0 42px;
+      letter-spacing:.2px;
+      font-weight:700;
+    }
+    .navlinks{
+      display:grid;
+      gap:22px;
+      align-content:start;
+      font-size:14px;
+      font-weight:400;
+    }
+    .navlinks .disabled{
+      color:var(--text);
+      text-decoration:underline;
+      opacity:.7;
+      cursor:not-allowed;
+    }
+    .contact{
+      margin-top:auto;
+      max-width:170px;
+      font-size:14px;
+      line-height:1.25;
+      font-weight:400;
+    }
+    .contact p{margin:0 0 20px}
+    .main{
+      min-width:0;
+      height:100vh;
+      min-height:0;
+      padding:36px 20px 30px;
+      overflow:hidden;
+    }
+    .stage{
+      width:min(var(--content),calc(100vw - var(--left-rail) - 64px));
       margin:0 auto;
-      padding:24px;
-      min-height:100vh;
+      height:100%;
+      min-height:0;
       display:flex;
       flex-direction:column;
     }
     .brand{
-      font-weight:900;
-      font-size:26px;
-      line-height:1.25;
+      margin:0;
+      font-size:30px;
+      line-height:1.12;
+      font-weight:800;
+      letter-spacing:0;
     }
     .sub{
-      color:var(--muted);
-      margin-top:8px;
-      line-height:1.45;
-      max-width:900px;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 320px;
-      gap:16px;
-      flex:1;
-      min-height:0;
-      margin-top:20px;
-    }
-    @media(max-width:900px){.grid{grid-template-columns:1fr}}
-    .card{
-      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-      min-height:0;
+      margin:18px 0 0 18px;
+      color:var(--text);
+      font-size:15px;
+      line-height:1.35;
+      font-weight:400;
     }
     .welcome{
-      padding:16px;
-      margin:16px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      white-space:pre-line;
-      background:rgba(255,255,255,.03);
+      width:min(920px,100%);
+      margin:56px auto 28px;
+      padding:16px 18px;
+      border:0;
+      border-radius:18px;
+      background:var(--panel);
+      color:var(--text);
+      font-size:14px;
+      line-height:1.32;
+      font-weight:400;
+      display:flex;
+      align-items:flex-start;
     }
     .chat{
       flex:1;
+      min-height:0;
       overflow:auto;
-      padding:16px;
+      width:min(920px,100%);
+      margin:0 auto;
+      padding:0 0 18px;
+      display:flex;
+      flex-direction:column;
     }
     .row{display:flex;margin:10px 0}
-    .row.user{justify-content:flex-end}
+    .row.user{justify-content:center}
+    .row.bot{justify-content:center}
     .bubble{
-      max-width:80%;
-      padding:12px;
-      border-radius:14px;
-      border:1px solid var(--border);
+      width:100%;
+      padding:13px 15px;
+      border-radius:12px;
+      border:0;
       white-space:pre-wrap;
-      background:rgba(255,255,255,.04);
-    }
-    .bubble.user{background:rgba(96,165,250,.18)}
-    .composer{
+      background:var(--panel);
+      color:var(--text);
+      font-size:14px;
+      line-height:1.34;
+      font-weight:400;
       display:flex;
-      gap:10px;
-      padding:14px;
-      border-top:1px solid var(--border);
-      background:rgba(0,0,0,.15);
+      align-items:center;
+    }
+    .bubble.user{
+      background:var(--panel-light);
+      justify-content:flex-start;
+    }
+    .bubble.bot{
+      background:var(--panel);
+    }
+    .bubble.pending{color:var(--muted)}
+    .prompt-area{
+      width:min(920px,100%);
+      margin:0 auto 32px;
+    }
+    .prompt-area h3{
+      margin:0 0 18px;
+      font-size:14px;
+      font-weight:400;
+    }
+    .prompts{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px 28px;
+      padding:0;
+    }
+    .pill{
+      padding:10px 14px;
+      border-radius:10px;
+      border:0;
+      background:var(--panel);
+      color:var(--text);
+      text-align:center;
+      cursor:pointer;
+      font-size:14px;
+      line-height:1.22;
+      font-weight:400;
+    }
+    .pill:hover{background:#3a3a3a}
+    .suggestions h2{
+      margin:0 0 18px;
+      font-size:14px;
+      line-height:1.2;
+      font-weight:400;
+    }
+    .side-prompts{
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+    .side-prompts .pill{
+      width:100%;
+      min-height:58px;
+      padding-inline:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .composer{
+      width:min(920px,100%);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px 10px 18px;
+      min-height:54px;
+      border:0;
+      border-radius:18px;
+      background:var(--panel);
     }
     input{
       flex:1;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.12);
+      min-width:0;
+      padding:8px 0;
+      border:0;
+      outline:0;
+      background:transparent;
       color:var(--text);
       font-size:14px;
+      line-height:1.2;
+      font-weight:400;
     }
-    input::placeholder{color:rgba(229,231,235,.55)}
+    input::placeholder{color:#999999}
     button{
-      padding:12px 16px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.10);
-      color:var(--text);
+      font:inherit;
       cursor:pointer;
-      font-weight:700;
     }
-    .side{padding:16px}
-    .side h3{
-      margin:0 0 10px 0;
-      font-size:14px;
-      letter-spacing:.2px;
+    button:disabled{opacity:.55;cursor:not-allowed}
+    #send{
+      width:38px;
+      height:38px;
+      flex:0 0 38px;
+      border:0;
+      border-radius:999px;
+      background:#ffffff;
+      color:#000000;
+      display:grid;
+      place-items:center;
+      padding:0;
     }
-    .pill{
-      width:100%;
-      margin:6px 0;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      text-align:left;
-      cursor:pointer;
-      font-size:13px;
+    #send svg{
+      width:21px;
+      height:21px;
+      stroke:currentColor;
+      stroke-width:2.4;
+      stroke-linecap:round;
+      stroke-linejoin:round;
     }
-    .email{
-      margin-top:16px;
-      padding:12px;
-      border:1px dashed var(--border);
-      border-radius:12px;
-      font-size:13px;
+    .status{
+      min-height:0;
+      width:min(920px,100%);
+      margin:0 auto;
       color:var(--muted);
-      background:rgba(255,255,255,.03);
+      font-size:12px;
+      font-weight:400;
+    }
+    @media(max-width:900px){
+      :root{--left-rail:0px;--right-rail:0px}
+      html, body{overflow:auto}
+      .shell{display:block;border:0}
+      .suggestions{display:none}
+      .links{
+        height:auto;
+        min-height:auto;
+        border-right:0;
+        border-bottom:1px solid var(--line);
+        padding:22px;
+        display:block;
+      }
+      .links h2{margin:0 0 18px;font-size:24px}
+      .navlinks{display:flex;flex-wrap:wrap;gap:16px 22px;font-size:16px}
+      .contact{margin-top:24px;max-width:none;font-size:16px}
+      .contact p{margin:0 0 8px}
+      .main{height:auto;min-height:auto;padding:28px 16px;overflow:visible}
+      .stage{width:100%;min-height:calc(100vh - 230px)}
+      .brand{font-size:26px}
+      .sub{margin:16px 0 0;font-size:16px}
+      .welcome{margin:44px 0 24px;font-size:15px}
+      .prompt-area{margin:0 0 28px}
+      .prompts{grid-template-columns:1fr;padding:0;gap:12px}
+      .pill{font-size:15px}
+      .chat{padding:0 0 18px}
+      .bubble,.bubble.user,.bubble.bot{width:100%;font-size:15px}
+      .composer,.status{width:100%}
+    }
+    @media(min-width:901px){
+      body.conversation-started .stage{
+        width:min(var(--content),calc(100vw - var(--left-rail) - var(--right-rail) - 64px));
+      }
+      body.conversation-started .prompt-area{display:none}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="brand">
-      Welcome to the CV Chatbot! Subject: Asaf Rubin.
-    </div>
-    <div class="sub">
-      Ask about his background, experiences and interests and find out why you should hire him.
-    </div>
+  <div class="shell">
+    <aside class="links">
+      <h2>LINKS</h2>
+      <nav class="navlinks" aria-label="Profile links">
+        <a href="https://www.linkedin.com/in/asaf-rubin-phd-mba-21291466/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a href="https://github.com/asafrubin00" target="_blank" rel="noreferrer">GitHub</a>
+        <span class="disabled" title="Coming soon">Website</span>
+      </nav>
 
-    <div class="grid">
-      <div class="card">
-        <div class="welcome">
-Hello!
-
-So, you're thinking about hiring Asaf? Well you've come to the right place.
-My name is AsafBot9000 — a virtual simulacrum of Asaf Rubin, PhD, MBA.
-
-Ask away.
-        </div>
-        <div class="chat" id="chat"></div>
-        <div class="composer">
-          <input id="q" placeholder="Ask a question…" />
-          <button id="send">Send</button>
-        </div>
+      <div class="contact">
+        <p>Want to speak to the real human Asaf?</p>
+        <p>Drop him an email <a href="mailto:rubin.asaf01@gmail.com">here</a></p>
       </div>
+    </aside>
 
-      <div class="card">
-        <div class="side">
-          <h3>Try asking…</h3>
+    <main class="main">
+      <section class="stage" aria-label="Asaf Rubin CV chatbot">
+        <header>
+          <h1 class="brand">Asaf Rubin, according to a small pile of documents.</h1>
+          <p class="sub">Ask about my background, experience, research, interests, and what I might be useful for next.</p>
+        </header>
 
-          <button class="pill">How do you pronounce your name?</button>
-          <button class="pill">Give me the 30-second summary of your background.</button>
-          <button class="pill">What did you do at Russell Reynolds Associates?</button>
-          <button class="pill">What kind of roles are you looking for next?</button>
+        <div class="welcome">Hello. I am AsafBot, a suspiciously punctual approximation of Asaf Rubin. Ask me recruiter questions, research questions, pronunciation questions, or the classic: "what exactly are you trying to do with your life?"</div>
 
-          <div class="email">
-            Want to speak to the real human Asaf Rubin?<br>
-            Drop him an email at <b>rubin.asaf01@gmail.com</b>.
+        <div class="chat" id="chat"></div>
+
+        <div class="prompt-area" id="promptArea">
+          <h3>Try asking...</h3>
+          <div class="prompts">
+          <button class="pill" type="button">How do you pronounce your name?</button>
+          <button class="pill" type="button">What did you do at Russell Reynolds Associates?</button>
+          <button class="pill" type="button">Give me the 30-second summary of your background.</button>
+          <button class="pill" type="button">What kind of roles are you looking for next?</button>
           </div>
         </div>
+
+        <div class="status" id="status"></div>
+        <div class="composer">
+          <input id="q" placeholder="Ask anything" />
+          <button id="send" type="button" aria-label="Send">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 19V5"></path>
+              <path d="M5 12l7-7 7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <aside class="suggestions" aria-label="Suggested questions">
+      <h2>Try asking...</h2>
+      <div class="side-prompts">
+        <button class="pill" type="button">How do you pronounce your name?</button>
+        <button class="pill" type="button">What did you do at Russell Reynolds Associates?</button>
+        <button class="pill" type="button">Give me the 30-second summary of your background.</button>
+        <button class="pill" type="button">What kind of roles are you looking for next?</button>
       </div>
-    </div>
+    </aside>
   </div>
 
   <script>
     const chat=document.getElementById("chat");
     const q=document.getElementById("q");
     const send=document.getElementById("send");
+    const status=document.getElementById("status");
     const sid=crypto.randomUUID();
+    const history=[];
+    const maxHistory=8;
 
-    function add(role,text){
+    function add(role,text,extraClass=""){
       const r=document.createElement("div");
       r.className="row "+role;
       const b=document.createElement("div");
-      b.className="bubble "+role;
+      b.className=("bubble "+role+" "+extraClass).trim();
       b.textContent=text;
       r.appendChild(b);
       chat.appendChild(r);
       chat.scrollTop=chat.scrollHeight;
+      return r;
+    }
+
+    function remember(role,content){
+      history.push({role,content});
+      if(history.length>maxHistory) history.splice(0,history.length-maxHistory);
+    }
+
+    function setBusy(isBusy){
+      send.disabled=isBusy;
+      q.disabled=isBusy;
+      status.textContent="";
     }
 
     async function go(){
       if(!q.value.trim())return;
-      add("user",q.value);
       const msg=q.value;
+      document.body.classList.add("conversation-started");
+      add("user",msg);
+      remember("user",msg);
       q.value="";
-      const res=await fetch("/chat",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "x-session-id":sid
-        },
-        body:JSON.stringify({message:msg})
-      });
-      const data=await res.json();
-      add("bot",data.reply||"(no reply)");
+      setBusy(true);
+      const pending=add("bot","Thinking...", "pending");
+
+      try{
+        const res=await fetch("/api/chat",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "x-session-id":sid
+          },
+          body:JSON.stringify({
+            message:msg,
+            history:history.slice(0,-1)
+          })
+        });
+        const data=await res.json();
+        const reply=data.reply||"(no reply)";
+        pending.remove();
+        add("bot",reply);
+        remember("assistant",reply);
+      }catch(err){
+        pending.remove();
+        add("bot","Something broke on my side. Very on-brand for software, less ideal for recruitment.");
+      }finally{
+        setBusy(false);
+        q.focus();
+      }
     }
 
     send.onclick=go;
     q.onkeydown=e=>{if(e.key==="Enter")go()};
-    document.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{q.value=p.textContent});
+    document.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{q.value=p.textContent;q.focus()});
   </script>
 </body>
 </html>
