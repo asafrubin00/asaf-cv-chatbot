@@ -280,7 +280,7 @@
     }
     @media(max-width:900px){
       :root{--left-rail:0px;--right-rail:0px}
-      html, body{overflow:auto}
+      html, body{overflow-y:auto;overflow-x:hidden}
       .shell{display:block;border:0}
       .suggestions{display:none}
       .links{
@@ -306,19 +306,21 @@
       .navlinks{display:flex;flex-wrap:wrap;gap:16px 22px;font-size:16px}
       .contact{margin-top:24px;max-width:none;font-size:16px}
       .contact p{margin:0 0 8px}
-      .main{height:auto;min-height:auto;padding:28px 16px;overflow:visible}
-      .stage{width:100%;min-height:calc(100vh - 230px)}
+      .main{height:auto;min-height:auto;padding:28px 16px;overflow:visible;max-width:100vw}
+      .stage{width:100%;max-width:100%;min-height:calc(100vh - 230px)}
       .brand{font-size:26px}
       .sub{margin:16px 0 0;font-size:16px}
       .welcome{margin:44px 0 24px;font-size:15px}
       .prompt-area{margin:0 0 28px}
       .prompts{grid-template-columns:1fr;padding:0;gap:12px}
       .pill{font-size:15px}
-      .chat{padding:0 0 18px}
-      .bubble,.bubble.user,.bubble.bot{width:100%;font-size:15px}
-      .composer,.status{width:100%}
+      .chat{padding:0 0 18px;width:100%;max-width:100%;overflow-x:hidden}
+      .bubble,.bubble.user,.bubble.bot{width:100%;max-width:100%;font-size:15px;overflow-wrap:break-word}
+      .composer,.status{width:100%;max-width:100%}
+      .composer{overflow:hidden}
+      body.conversation-started .suggestions{display:none!important}
     }
-    body.conversation-started .prompt-area{display:none}
+    body.conversation-started .prompt-area{display:none!important}
     @media(min-width:901px){
       body.conversation-started .stage{
         width:min(var(--content),calc(100vw - var(--left-rail) - var(--right-rail) - 64px));
@@ -393,6 +395,7 @@
     const q=document.getElementById("q");
     const send=document.getElementById("send");
     const status=document.getElementById("status");
+    const promptArea=document.getElementById("promptArea");
     const sid=crypto.randomUUID();
     const history=[];
     const maxHistory=8;
@@ -424,6 +427,7 @@
       if(!q.value.trim())return;
       const msg=q.value;
       document.body.classList.add("conversation-started");
+      if(promptArea) promptArea.hidden=true;
       add("user",msg);
       remember("user",msg);
       q.value="";
