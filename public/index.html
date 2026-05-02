@@ -48,7 +48,17 @@
       flex-direction:column;
       overflow:hidden;
     }
-    .links{border-right:1px solid var(--line)}
+    .links{
+      border-right:1px solid var(--line);
+      position:relative;
+    }
+    .links-logo{
+      width:38px;
+      height:38px;
+      display:block;
+      margin:0 0 22px;
+      object-fit:contain;
+    }
     .suggestions{
       border-left:1px solid var(--line);
       display:none;
@@ -280,6 +290,17 @@
         border-bottom:1px solid var(--line);
         padding:22px;
         display:block;
+        position:sticky;
+        top:0;
+        z-index:10;
+      }
+      .links-logo{
+        width:44px;
+        height:44px;
+        position:absolute;
+        top:22px;
+        right:22px;
+        margin:0;
       }
       .links h2{margin:0 0 18px;font-size:24px}
       .navlinks{display:flex;flex-wrap:wrap;gap:16px 22px;font-size:16px}
@@ -297,17 +318,18 @@
       .bubble,.bubble.user,.bubble.bot{width:100%;font-size:15px}
       .composer,.status{width:100%}
     }
+    body.conversation-started .prompt-area{display:none}
     @media(min-width:901px){
       body.conversation-started .stage{
         width:min(var(--content),calc(100vw - var(--left-rail) - var(--right-rail) - 64px));
       }
-      body.conversation-started .prompt-area{display:none}
     }
   </style>
 </head>
 <body>
   <div class="shell">
     <aside class="links">
+      <img class="links-logo" src="/favicon.png" alt="Asaf Rubin logo" />
       <h2>LINKS</h2>
       <nav class="navlinks" aria-label="Profile links">
         <a href="https://www.linkedin.com/in/asaf-rubin-phd-mba-21291466/" target="_blank" rel="noreferrer">LinkedIn</a>
@@ -336,7 +358,7 @@
           <h3>Try asking...</h3>
           <div class="prompts">
           <button class="pill" type="button">How do you pronounce your name?</button>
-          <button class="pill" type="button">What did you do at Russell Reynolds Associates?</button>
+          <button class="pill" type="button">What was your PhD about?</button>
           <button class="pill" type="button">Give me the 30-second summary of your background.</button>
           <button class="pill" type="button">What kind of roles are you looking for next?</button>
           </div>
@@ -359,7 +381,7 @@
       <h2>Try asking...</h2>
       <div class="side-prompts">
         <button class="pill" type="button">How do you pronounce your name?</button>
-        <button class="pill" type="button">What did you do at Russell Reynolds Associates?</button>
+        <button class="pill" type="button">What was your PhD about?</button>
         <button class="pill" type="button">Give me the 30-second summary of your background.</button>
         <button class="pill" type="button">What kind of roles are you looking for next?</button>
       </div>
